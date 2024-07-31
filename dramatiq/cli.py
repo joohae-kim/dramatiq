@@ -438,7 +438,7 @@ def fork_process(args, fork_id, fork_path, logging_pipe):
         random.seed()
 
         logger = setup_fork_logging(args, fork_id, logging_pipe)
-        logger.debug("Loading fork function...")
+        logger.info("Loading fork function %r ...", fork_path)
 
         _, func = import_object(fork_path)
     except ImportError:
@@ -472,7 +472,9 @@ def fork_process(args, fork_id, fork_path, logging_pipe):
 
 
 def main(args=None):  # noqa
+    logger.info(f"Args given {args}")
     args = args or make_argument_parser().parse_args()
+    logger.info(f"Args to use {args}, forks {args.forks}")
     for path in args.path:
         sys.path.insert(0, path)
 
@@ -522,7 +524,9 @@ def main(args=None):  # noqa
 
     fork_pipes = []
     fork_processes = []
+    logger.info("Forking processes...")
     for fork_id, fork_path in enumerate(chain(args.forks, canteen_get(canteen))):
+        logger.info("Forking process %r", fork_path)    
         read_pipe, write_pipe = multiprocessing.Pipe(duplex=False)
         proc = multiprocessing.Process(
             target=fork_process,
